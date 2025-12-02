@@ -5,6 +5,9 @@ import com.xm.crypto.model.dto.response.HighestNormalizedRangeResponse;
 import com.xm.crypto.model.dto.response.NormalizedCryptosResponse;
 import com.xm.crypto.service.CryptoStatsService;
 import com.xm.crypto.service.NormalizedRangeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +18,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/cryptos")
+@Tag(name = "Crypto Controller", description = "API for listing the cryptos and retrieve statistics about them")
 public class CryptoController {
 
     private final NormalizedRangeService normalizedRangeService;
@@ -23,23 +27,38 @@ public class CryptoController {
     public CryptoController(
             NormalizedRangeService normalizedRangeService,
             CryptoStatsService cryptoStatsService
-    ){
+    ) {
         this.normalizedRangeService = normalizedRangeService;
         this.cryptoStatsService = cryptoStatsService;
     }
 
     @GetMapping("/list-by-normalized-range")
-    public NormalizedCryptosResponse listByNormalizedRange(){
+    @Operation(summary = "List cryptos sorted by normalized range", description = "Returns a descending sorted list of all cryptos by normalized range")
+    public NormalizedCryptosResponse listByNormalizedRange() {
         return new NormalizedCryptosResponse(normalizedRangeService.listByNormalizedRange());
     }
 
     @GetMapping("/{symbol}/stats")
-    public CryptoStatsResponse getStats(@PathVariable String symbol){
+    @Operation(summary = "Get statistics for a crypto", description = "Returns statistics about a crypto: oldest/newest/min/max values")
+    public CryptoStatsResponse getStats(
+            @Parameter(
+                    description = "Symbol of the crypto to which the statistic should be retrieved",
+                    example = "BTC"
+            )
+            @PathVariable String symbol
+    ) {
         return new CryptoStatsResponse(cryptoStatsService.getStats(symbol));
     }
 
     @GetMapping("/highest-normalized-range")
-    public HighestNormalizedRangeResponse getHighestNormalizedRange(@RequestParam LocalDate date){
+    @Operation(summary = "Get highest normalized range", description = "Returns the crypto with the highest normalized range for the requested day")
+    public HighestNormalizedRangeResponse getHighestNormalizedRange(
+            @Parameter(
+                    description = "The requested day. The crypto with the highest normalized range will be returned for the day specified here.",
+                    example = "2025-12-02"
+            )
+            @RequestParam LocalDate date
+    ) {
         return new HighestNormalizedRangeResponse(normalizedRangeService.getHighestNormalizedRange(date));
     }
 }
