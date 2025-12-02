@@ -136,7 +136,7 @@ public class CryptoController {
     public HighestNormalizedRangeResponse getHighestNormalizedRange(
             @Parameter(
                     description = "The requested day. The crypto with the highest normalized range will be returned for the day specified here.",
-                    example = "2025-12-02"
+                    example = "2022-01-01"
             )
             @RequestParam LocalDate date
     ) {

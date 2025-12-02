@@ -1,6 +1,5 @@
 package com.xm.crypto.exception;
 
-import com.xm.crypto.model.dto.ErrorCode;
 import com.xm.crypto.model.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import static com.xm.crypto.model.dto.ErrorCode.CRYPTO_DATA_NOT_FOUND;
 import static com.xm.crypto.model.dto.ErrorCode.INTERNAL_ERROR;
 import static com.xm.crypto.model.dto.ErrorCode.INVALID_PARAMETER;
 import static com.xm.crypto.model.dto.ErrorCode.MISSING_PARAMETER;
+import static com.xm.crypto.model.dto.ErrorCode.RESOURCE_NOT_FOUND;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,8 +25,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException exception) {
         logger.debug("Requested resource is not found.", exception);
         ErrorResponse error = new ErrorResponse(
-                ErrorCode.RESOURCE_NOT_FOUND,
+                RESOURCE_NOT_FOUND,
                 "The requested resource is not found."
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NoCryptoDataFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoCryptoDataFoundException(NoCryptoDataFoundException exception) {
+        logger.debug("No crypto data was found.", exception);
+
+        ErrorResponse error = new ErrorResponse(
+                CRYPTO_DATA_NOT_FOUND,
+                exception.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
