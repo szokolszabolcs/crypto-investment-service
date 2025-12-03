@@ -104,7 +104,7 @@ the Application** section.
 - **Add missing tests:**  
   Currently there is only an integration test to check the basic functionality of the endpoints and there are test for
   the services, but other unit tests are missing.
-- **More JavaDoc:**  
+- **Add more JavaDoc:**  
   JavaDoc is currently added only to the services, but it could be beneficial to documents other classes as well.
 - **Auto Linting Tool:**  
   Use Checkstyle, Spotless, or similar tools to enforce code style and quality automatically.
