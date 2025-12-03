@@ -22,7 +22,7 @@ handling.
 
 ### 1. Prerequisites
 
-- Java 21 or higher (Java 25 recommended)
+- Java 25 or higher
 - Maven 3.8+ (for building)
 - Docker (optional, for containerized runs)
 
@@ -35,8 +35,20 @@ mvn clean package
 ### 3. Run the Application
 
 ```bash
-java -jar target/crypto-investment-service-0.0.1-SNAPSHOT.jar
+mvn spring-boot:run -Dspring-boot.run.arguments="--crypto.prices.dir=C:\prices"
 ```
+
+**Note:**
+Replace `C:\prices` with the path to the directory containing your CSV files with crypto price data.
+
+Each CSV file should have the following format:
+
+```
+timestamp,symbol,price
+1640995200000,BTC,45678.91
+```
+
+The application startup will fail if the directory is not provided.
 
 ### 4. Run with Docker
 
@@ -49,8 +61,12 @@ docker build -t crypto-investment-service .
 Run the container:
 
 ```bash
-docker run -p 8080:8080 crypto-investment-service
+docker run -p 8080:8080 -v /my_path/prices:/data/prices crypto-investment-service --crypto.prices.dir=/data/prices
 ```
+
+**Note:**
+Please replace the mounted `/my_path/prices` path with the one which contains the CSV files as described in the **Run
+the Application** section.
 
 ### 5. Configuration
 
