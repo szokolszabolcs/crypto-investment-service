@@ -7,8 +7,17 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface CryptoRepository extends JpaRepository<CryptoEntity, Long> {
+
+    Optional<CryptoEntity> findFirstByIdSymbolOrderByIdTimestampAsc(String symbol);
+
+    Optional<CryptoEntity> findFirstByIdSymbolOrderByIdTimestampDesc(String symbol);
+
+    Optional<CryptoEntity> findFirstByIdSymbolOrderByPriceAsc(String symbol);
+
+    Optional<CryptoEntity> findFirstByIdSymbolOrderByPriceDesc(String symbol);
 
     @Query("SELECT DISTINCT c.id.symbol FROM CryptoEntity c")
     List<String> findAllSymbols();

@@ -1,24 +1,50 @@
 package com.xm.crypto.service;
 
+import com.xm.crypto.exception.NoCryptoDataFoundException;
 import com.xm.crypto.model.dto.CryptoStatsDto;
 import com.xm.crypto.model.dto.CryptoValueDto;
+import com.xm.crypto.model.mapper.CryptoEntityMapper;
+import com.xm.crypto.repository.CryptoRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 @Service
 public class CryptoStatsServiceImpl implements CryptoStatsService {
 
+    private final CryptoRepository cryptoRepository;
+    private final CryptoEntityMapper cryptoEntityMapper;
+
+    public CryptoStatsServiceImpl(CryptoRepository cryptoRepository, CryptoEntityMapper cryptoEntityMapper) {
+        this.cryptoRepository = cryptoRepository;
+        this.cryptoEntityMapper = cryptoEntityMapper;
+    }
+
     @Override
     public CryptoStatsDto getStats(String symbol) {
-        // TODO implement
+        var oldest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampAsc(symbol)
+                .map(cryptoEntityMapper::toDomain)
+                .orElseThrow(noCryptoDataFoundException(symbol));
+        var newest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampDesc(symbol)
+                .map(cryptoEntityMapper::toDomain)
+                .orElseThrow(noCryptoDataFoundException(symbol));
+        var min = cryptoRepository.findFirstByIdSymbolOrderByPriceAsc(symbol)
+                .map(cryptoEntityMapper::toDomain)
+                .orElseThrow(noCryptoDataFoundException(symbol));
+        var max = cryptoRepository.findFirstByIdSymbolOrderByPriceDesc(symbol)
+                .map(cryptoEntityMapper::toDomain)
+                .orElseThrow(noCryptoDataFoundException(symbol));
+
         return new CryptoStatsDto(
                 symbol,
-                new CryptoValueDto(LocalDateTime.now().minusDays(30), BigDecimal.ONE),
-                new CryptoValueDto(LocalDateTime.now().minusDays(1), BigDecimal.TWO),
-                new CryptoValueDto(LocalDateTime.now().minusDays(10), BigDecimal.ZERO),
-                new CryptoValueDto(LocalDateTime.now().minusDays(20), BigDecimal.TEN)
+                new CryptoValueDto(oldest.timestamp(), oldest.price()),
+                new CryptoValueDto(newest.timestamp(), newest.price()),
+                new CryptoValueDto(min.timestamp(), min.price()),
+                new CryptoValueDto(max.timestamp(), max.price())
         );
+    }
+
+    private static Supplier<NoCryptoDataFoundException> noCryptoDataFoundException(String symbol) {
+        return () -> new NoCryptoDataFoundException("There is no data for the requested crypto: " + symbol);
     }
 }
