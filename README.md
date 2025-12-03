@@ -85,6 +85,9 @@ docker run -p 8080:8080 crypto-investment-service
 
 - **Add Code Coverage Checking:**  
   Integrate tools like JaCoCo or Cobertura to monitor and improve test coverage.
+- **Add missing tests:**  
+  Currently there is only an integration test to check the basic functionality of the endpoints and there are test for
+  the services, but other unit tests are missing.
 - **Auto Linting Tool:**  
   Use Checkstyle, Spotless, or similar tools to enforce code style and quality automatically.
 - **Customize Logging:**  
