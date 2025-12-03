@@ -22,21 +22,22 @@ public class CryptoStatsServiceImpl implements CryptoStatsService {
 
     @Override
     public CryptoStatsDto getStats(String symbol) {
-        var oldest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampAsc(symbol)
+        var upperCaseSymbol = symbol.toUpperCase();
+        var oldest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampAsc(upperCaseSymbol)
                 .map(cryptoEntityMapper::toDomain)
-                .orElseThrow(noCryptoDataFoundException(symbol));
-        var newest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampDesc(symbol)
+                .orElseThrow(noCryptoDataFoundException(upperCaseSymbol));
+        var newest = cryptoRepository.findFirstByIdSymbolOrderByIdTimestampDesc(upperCaseSymbol)
                 .map(cryptoEntityMapper::toDomain)
-                .orElseThrow(noCryptoDataFoundException(symbol));
-        var min = cryptoRepository.findFirstByIdSymbolOrderByPriceAsc(symbol)
+                .orElseThrow(noCryptoDataFoundException(upperCaseSymbol));
+        var min = cryptoRepository.findFirstByIdSymbolOrderByPriceAsc(upperCaseSymbol)
                 .map(cryptoEntityMapper::toDomain)
-                .orElseThrow(noCryptoDataFoundException(symbol));
-        var max = cryptoRepository.findFirstByIdSymbolOrderByPriceDesc(symbol)
+                .orElseThrow(noCryptoDataFoundException(upperCaseSymbol));
+        var max = cryptoRepository.findFirstByIdSymbolOrderByPriceDesc(upperCaseSymbol)
                 .map(cryptoEntityMapper::toDomain)
-                .orElseThrow(noCryptoDataFoundException(symbol));
+                .orElseThrow(noCryptoDataFoundException(upperCaseSymbol));
 
         return new CryptoStatsDto(
-                symbol,
+                upperCaseSymbol,
                 new CryptoValueDto(oldest.timestamp(), oldest.price()),
                 new CryptoValueDto(newest.timestamp(), newest.price()),
                 new CryptoValueDto(min.timestamp(), min.price()),

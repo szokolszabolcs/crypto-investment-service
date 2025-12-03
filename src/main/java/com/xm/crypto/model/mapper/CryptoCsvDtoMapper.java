@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 public class CryptoCsvDtoMapper {
 
     public CryptoEntity toEntity(CryptoCsvDto dto) {
-        return new CryptoEntity(dto.timestamp(), dto.symbol(), dto.price());
+        return new CryptoEntity(dto.timestamp(), dto.symbol().toUpperCase(), dto.price());
     }
 }
