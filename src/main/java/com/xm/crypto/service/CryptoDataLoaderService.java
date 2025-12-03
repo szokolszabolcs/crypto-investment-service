@@ -10,9 +10,11 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,21 +42,32 @@ public class CryptoDataLoaderService {
     public void loadCryptoData() {
         logger.info("Loading crypto data on startup from location: {}", cryptoPricesDir);
 
-        File[] cryptoCsvFiles = resolveCryptoCsvFiles(cryptoPricesDir);
-        if (cryptoCsvFiles == null || cryptoCsvFiles.length == 0) {
-            logger.error("No valid crypto CSV files were found on the provided path: {}", cryptoPricesDir);
-            throw new IllegalArgumentException("No valid crypto CSV files were found on the provided path: " + cryptoPricesDir);
-        }
+        try {
+            File[] cryptoCsvFiles = resolveCryptoCsvFiles(cryptoPricesDir);
+            if (cryptoCsvFiles == null || cryptoCsvFiles.length == 0) {
+                logger.error("No valid crypto CSV files were found on the provided path: {}", cryptoPricesDir);
+                throw new IllegalArgumentException("No valid crypto CSV files were found on the provided path: " + cryptoPricesDir);
+            }
 
-        Arrays.stream(cryptoCsvFiles)
-                .forEach(this::processCryptoCsvFile);
+            Arrays.stream(cryptoCsvFiles)
+                    .forEach(this::processCryptoCsvFile);
+        } catch (Exception exception) {
+            throw new RuntimeException("An error occurred during the loading of the crypto data", exception);
+        }
 
         logger.info("Crypto data was successfully loaded.");
     }
 
-    private File[] resolveCryptoCsvFiles(String path) {
-        var dir = new File(path);
-        return dir.listFiles((d, name) -> name.endsWith(CRYPTO_CSV_FILE_POSTFIX));
+    private File[] resolveCryptoCsvFiles(String path) throws IOException {
+        if (path.startsWith("classpath:")) {
+            String resourcePath = path.substring("classpath:".length());
+            ClassPathResource resource = new ClassPathResource(resourcePath);
+            File dir = resource.getFile();
+            return dir.listFiles((d, name) -> name.endsWith(CRYPTO_CSV_FILE_POSTFIX));
+        } else {
+            File dir = new File(path);
+            return dir.listFiles((d, name) -> name.endsWith(CRYPTO_CSV_FILE_POSTFIX));
+        }
     }
 
     private void processCryptoCsvFile(File file) {

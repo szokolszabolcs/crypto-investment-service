@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = new ErrorResponse(
                 INVALID_PARAMETER,
-                "An invalid value was provided for '" + parameterName + "'parameter."
+                "An invalid value was provided for '" + parameterName + "' parameter."
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
